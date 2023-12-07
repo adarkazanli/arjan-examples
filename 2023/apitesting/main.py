@@ -5,6 +5,29 @@ from sqlalchemy import create_engine, String, Column, Integer
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.ext.declarative import declarative_base
 from pydantic import BaseModel
+import logging
+
+# Create a custom logger
+logger = logging.getLogger(__name__)
+
+# Set level of logger
+logger.setLevel(logging.DEBUG)
+
+# Create handlers
+c_handler = logging.StreamHandler()
+f_handler = logging.FileHandler('file.log')
+c_handler.setLevel(logging.INFO)
+f_handler.setLevel(logging.INFO)
+
+# Create formatters and add it to handlers
+c_format = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
+f_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+c_handler.setFormatter(c_format)
+f_handler.setFormatter(f_format)
+
+# Add handlers to the logger
+logger.addHandler(c_handler)
+logger.addHandler(f_handler)
 
 Base = declarative_base()
 
@@ -40,12 +63,14 @@ class DBItem(Base):
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+logger.info("SessionLocal created")
 
 app = FastAPI()
 
 
 # Dependency to get the database session
 def get_db():
+    logger.info("Getting database session... main")
     database = SessionLocal()
     try:
         yield database
@@ -55,6 +80,7 @@ def get_db():
 
 @app.on_event("startup")
 async def startup():
+    logger.info("Creating database tables...main")
     Base.metadata.create_all(bind=engine)
 
 
