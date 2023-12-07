@@ -60,7 +60,7 @@ async def startup():
 
 @app.post("/items")
 def create_item(item: ItemCreate, db: Session = Depends(get_db)) -> Item:
-    db_item = DBItem(**item.model_dump())
+    db_item = DBItem(**item.__dict__)
     db.add(db_item)
     db.commit()
     db.refresh(db_item)
@@ -80,7 +80,7 @@ def update_item(item_id: int, item: ItemUpdate, db: Session = Depends(get_db)) -
     db_item = db.query(DBItem).filter(DBItem.id == item_id).first()
     if db_item is None:
         raise HTTPException(status_code=404, detail="Item not found")
-    for key, value in item.model_dump().items():
+    for key, value in item.__dict__.items():
         setattr(db_item, key, value)
     db.commit()
     db.refresh(db_item)
