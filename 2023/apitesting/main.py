@@ -1,10 +1,12 @@
 from typing import Optional
 from fastapi import FastAPI, HTTPException
 from fastapi.params import Depends
-from sqlalchemy import create_engine, String
-from sqlalchemy.orm import sessionmaker, Session, DeclarativeBase, Mapped, mapped_column
+from sqlalchemy import create_engine, String, Column, Integer
+from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.ext.declarative import declarative_base
 from pydantic import BaseModel
 
+Base = declarative_base()
 
 class Item(BaseModel):
     id: int
@@ -25,16 +27,15 @@ class ItemUpdate(BaseModel):
 DATABASE_URL = "sqlite:///test.db"
 
 
-class Base(DeclarativeBase):
-    pass
+
 
 
 class DBItem(Base):
     __tablename__ = "items"
 
-    id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    name: Mapped[str] = mapped_column(String(30))
-    description: Mapped[Optional[str]]
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String)
+    description = Column(String, nullable=True)
 
 
 engine = create_engine(DATABASE_URL)
