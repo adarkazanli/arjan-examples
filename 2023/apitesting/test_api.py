@@ -1,7 +1,10 @@
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine, StaticPool
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from main import app, Base, get_db
+from main import app, get_db
+from sqlalchemy.ext.declarative import declarative_base
+
+Base = declarative_base()
 
 # Setup the TestClient
 client = TestClient(app)
@@ -10,10 +13,7 @@ client = TestClient(app)
 DATABASE_URL = "sqlite:///:memory:"
 engine = create_engine(
     DATABASE_URL,
-    connect_args={
-        "check_same_thread": False,
-    },
-    poolclass=StaticPool,
+    future=True
 )
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
