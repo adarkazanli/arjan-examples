@@ -84,6 +84,11 @@ async def startup():
     Base.metadata.create_all(bind=engine)
 
 
+@app.get("/items")
+def read_items(db: Session = Depends(get_db)) -> list[Item]:
+    db_items = db.query(DBItem).all()
+    return [Item(**db_item.__dict__) for db_item in db_items]
+
 @app.post("/items")
 def create_item(item: ItemCreate, db: Session = Depends(get_db)) -> Item:
     db_item = DBItem(**item.__dict__)
