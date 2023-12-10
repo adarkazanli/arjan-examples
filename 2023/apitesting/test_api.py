@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, StaticPool
 from sqlalchemy.orm import sessionmaker
-from main import app, get_db
+from main import app, get_db, Base
 from sqlalchemy.ext.declarative import declarative_base
 import logging
 
@@ -27,9 +27,6 @@ f_handler.setFormatter(f_format)
 logger.addHandler(c_handler)
 logger.addHandler(f_handler)
 
-Base = declarative_base()
-logger.info('Base created')
-
 # Setup the TestClient
 client = TestClient(app)
 logger.info('TestClient created')
@@ -39,7 +36,8 @@ DATABASE_URL = "sqlite:///:memory:"
 # DATABASE_URL = "sqlite:///test.db"
 engine = create_engine(
     DATABASE_URL,
-    future=True
+    connect_args={"check_same_thread": False},
+    poolclass=StaticPool,
 )
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 logger.info('TestingSessionLocal created')
