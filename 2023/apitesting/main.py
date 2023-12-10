@@ -79,7 +79,7 @@ def get_db():
 
 
 @app.on_event("startup")
-async def startup():
+async def startup_event():
     logger.info("Creating database tables...main")
     Base.metadata.create_all(bind=engine)
 
